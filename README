@@ -1,5 +1,5 @@
 =DEPLOY
-To install dependency:
-sudo apt-get install python-dev build-essential
+To install dependency(May not need):
+sudo apt-get install python-dev build-essential python-setuptools
 
-sudo pip install numpy,statsmodels
+install Anaconda
