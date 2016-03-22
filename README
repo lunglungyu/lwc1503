@@ -1,0 +1,5 @@
+=DEPLOY
+To install dependency:
+sudo apt-get install python-dev build-essential
+
+sudo pip install numpy,statsmodels
