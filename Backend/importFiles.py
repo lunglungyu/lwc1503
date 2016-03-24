@@ -1,8 +1,7 @@
 import os
 import datetime as dt
-
 yearStartImport = 2003		# first year
-yearsImport = 10
+yearsImport = 1
 yearLastImport = yearStartImport + yearsImport - 1		# last year
 
 def isLeap(yy):
