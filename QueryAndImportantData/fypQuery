@@ -1,0 +1,15 @@
+select count(*) as `countOfTuple`, `A`.`station1`,`A`.`station2`  from `pythonResult` `A` where `A`.`p1`<0.05  group by `A`.`station1`,`A`.`station2`  order by `countOfTuple` desc
+-- p1 important pairs at the first
+select count(*) as `countOfTuple`, `A`.`station1`,`A`.`station2`  from `pythonResult` `A` where `A`.`p1`<0.05 and `A`.`p2`<0.05  group by `A`.`station1`,`A`.`station2`  order by `countOfTuple` desc
+-- p12 important pairs at the first
+select count(*) as `countOfTuple`, `A`.`station1`,`A`.`station2`  from `pythonResult` `A` where `A`.`p1`<0.05 and `A`.`p2`<0.05 and `A`.`p3`<0.05   group by `A`.`station1`,`A`.`station2`  order by `countOfTuple` desc
+-- p123 important pairs at the first
+select count(*) as `countOfTuple`, `A`.`station1`,`A`.`station2`  from `pythonResult` `A` where `A`.`p1`<0.05 and `A`.`p2`<0.05 and `A`.`p3`<0.05  and `A`.`p4`<0.05   group by `A`.`station1`,`A`.`station2`  order by `countOfTuple` desc
+-- p1234 important pairs at the first
+select count(*) as `countOfTuple`, `A`.`station1`,`A`.`station2`  from `pythonResult` `A` where `A`.`p1`<0.05 and `A`.`p2`<0.05 and `A`.`p3`<0.05  and `A`.`p4`<0.05  and `A`.`p5`<0.05   group by `A`.`station1`,`A`.`station2`  order by `countOfTuple` desc
+-- p12345 important pairs at the first
+
+SELECT count(*) as `ct`,`station1`,`station2` FROM `pythonResult` group by `station1`,`station2` order by `ct`
+-- 525 to 680
+
+

@@ -1,3 +1,4 @@
 Backend/ChinaAll
 **/*.un~
 **/*.pyc
+**/*.swp
