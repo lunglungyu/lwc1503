@@ -2,13 +2,14 @@ import MySQLdb as dbapi
 import sys
 import csv
 import os
+threshold = 100
 dbServer='127.0.0.1'
 dbPass='fyp'
 dbUser='root'
 dbName = 'lwc1503'
 dbQuery='SELECT id,station1,station2,startDate,p1,p2,p3,p4,p5 FROM pythonResult where station1= %s and station2 = %s'
-pairFile = r'../QueryAndImportantData/Causality_Pair_p12345.csv'
-pairFileDirectory = r'../QueryAndImportantData/pairData/'
+pairFile = r'../QueryAndImportantData/Causality_Pair_p1.csv'
+pairFileDirectory = r'../QueryAndImportantData/pairData_p1/'
 d = os.path.dirname(pairFileDirectory)
 if not os.path.exists(d):
     os.makedirs(d)
@@ -19,6 +20,8 @@ f = open(pairFile, 'r')
 for row in csv.reader(f):  
     print row  
     pairCount = int(row[0])
+    if pairCount<threshold:
+        break
     station1 = row[1]
     station2 = row[2]
     outputFileName = "%04d" %pairCount  + "_" + station1 + "_" + station2 +".csv"
