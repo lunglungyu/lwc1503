@@ -1,49 +1,22 @@
-<!--
-	ccc6.html
-	
-	data generation:  genGC.py
-	Time series (TS) length: 30
-	Interval between TS: 5
-	Format: comma separated, not csv, by year
-
-	
-	include all coe data
-
-    data source: temp
-    range: 2003 - 2012
-
-    All data are preloaded into lists in JS to speed up reading time.
-    * including coefficients (strength)		22/2/16
-
--->
 <!DOCTYPE html>
+<meta charset="utf-8">
 <html>
 <head>
-<meta charset="utf-8">
 <title>GSOD visualize</title>
 <link type="text/css" rel="stylesheet" href="style.css"/>
-<link type="text/css" rel="stylesheet" href="res/select2.css"/>
-<link type="text/css" rel="stylesheet" href="res/jquery-ui.min.css"/>
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<script src="res/jquery-1.11.3.min.js"></script>
-<script src="res/select2.min.js"></script>
-<script src="res/jquery-ui.min.js"></script>
-<script src="res/bigSlide.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link type="text/css" rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
+<link type="text/css" rel="stylesheet" href="bower_components/jquery-ui/themes/base/all.css"/>
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/select2/dist/js/select2.full.min.js"></script>
+<script src="bower_components/jquery-ui/ui/core.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="bower_components/d3/d3.min.js"></script>
+<script src="script/d3.geo.js"></script>
+<script src="script/d3.geom.js"></script>
+<!-- d3.geo.js , d3.geom.js  -->
 </head>
-
 <body style="font-size:24px;">
-<!--
-<nav id="menu" class="panel" role="navigation">
-    <ul>
-    <li><a href="#">Test</a></li>
-    <li><a href="#">Test</a></li>
-    <li><a href="#">Test</a></li>
-    <li><a href="#">Test</a></li>
-    <li><a href="#">Test</a></li>
-    </ul>
-</nav>
--->
 <div style="position:fixed; left:1%; bottom:10%;">
     <!--<div><a href="#menu" class="menu-link">&#9776;</a></div>-->
     <div>Mouse Station:<span id="stationNow"></span></div>
@@ -55,7 +28,6 @@
     <button onclick="upd2(0,-1)" >Last Month</button>
     <button onclick="upd2(0,1)" >Next Month</button>
     -->
-
     <div id='yearDiv' data-toggle="tooltip" title="YOOOO">Year: </div>
     <!--
     <div id='monthDiv'>Month: </div>
@@ -64,7 +36,6 @@
     <button onclick='upd3(-1)'>Last</button>
     <div id='dateDiv'></div>
     <button onclick='upd3(1)'>Next</button>
-
     <div>
         Target Station:<select id="selectSrc" />
     </div>
@@ -77,17 +48,11 @@
 		<input type="checkbox" id='selectLag5' value='5' checked>5
     </div>
 </div>
-<script type="text/javascript" src="d3.v2.js"></script>
-<script type="text/javascript" src="d3.geo.js"></script>
-<script type="text/javascript" src="d3.geom.js"></script>
-<script type="text/javascript" src="d3.layout.js"></script>
-
 <script>
 var show_rec_i = 0
 var dateList = []	// store available TC dates for this year
 var oldYear = yearBegin
 var oldStation = null
-
 var allFromTo = [];
 var allToFrom = [];
 var yearBegin = 2003;
@@ -95,7 +60,6 @@ var yearEnd = 2004;
 var lagsChecked = [true,true,true,true,true,true];
 var rawData;
 var chinaStation = [50136099999,50434099999,50564099999,50888099999,51431099999,51463099999,51709099999,51811099999,51828099999,51886099999,52203099999,52418099999,52436099999,52495099999,52602099999,52737099999,52787099999,52818099999,52836099999,53083099999,53336099999,53352099999,53391099999,53564099999,53646099999,53705099999,53787099999,53923099999,53959099999,54012099999,54026099999,54259099999,54273099999,54292099999,54337099999,54377099999,54511099999,54808099999,54823099999,54843099999,54863099999,55228099999,55279099999,55578099999,55696099999,56004099999,56065099999,56106099999,56167099999,56247099999,56444099999,56492099999,56748099999,56954099999,56985099999,57328099999,57476099999,57598099999,57745099999,57816099999,58221099999,58345099999,58367099999,58633099999,58754099999,58968099999,59007099999,59117099999,59134099999,59278099999,59316099999,59358099999,59431099999,59456099999,59493099999,59845099999];
-
 // initialize data array
 function Initialize()
 {
@@ -119,7 +83,6 @@ function Initialize()
 }
 Initialize();
 </script>
-
 <script type="text/javascript">
 var body_w = 1500, body_h = 1500, positions = [], objmp={};
 var projection = d3.geo.azimuthal().mode("equidistant").origin([107, 31]).scale(1350).translate([640, 570]);
@@ -128,21 +91,18 @@ var svg = d3.select("body").insert("svg:svg", "body").attr("width", body_w).attr
 var states = svg.append("svg:g").attr("id", "states");
 var circles = svg.append("svg:g").attr("id", "circles");
 var cells = svg.append("svg:g").attr("id", "cells");
-
 // show voronoi
 /*d3.select("input[type=checkbox]").on("change", function() {
         cells.classed("voronoi", this.checked);
 });*/
-
-d3.json("china.json", function (collection) {
+d3.json("data/china.json", function (collection) {
         states.selectAll("path")
                   .data(collection.features)
                   .enter()
                   .append("svg:path")
                   .attr("d", path);
 });
-
-d3.csv("stationData.csv", function (datas)
+d3.csv("data/stationData.csv", function (datas)
 {
 	datas = datas.filter(function (station) {
 		if (chinaStation.indexOf(parseInt(station.id)) > -1)
@@ -181,7 +141,6 @@ d3.csv("stationData.csv", function (datas)
 		   .attr("cy", function(d, i) { return positions[i][1]; })
 		   .attr("r", 3)
 });
-
 svg.append("svg:defs")
    .append("svg:marker")
    .attr("id", "arrow")
@@ -194,7 +153,6 @@ svg.append("svg:defs")
    .attr("orient", "auto")
    .append("svg:path")
    .attr("d", "M 0 0 L 10 5 L 0 10 z");
-
 function upd()
 {
 	var yy = $('#yearSelect').val();
@@ -216,14 +174,12 @@ function upd2(addYear,addMonth)
 	var yy = parseInt($('#yearSelect').val());
 	var mm = dateList[show_rec_i][0];
 	var dd = dateList[show_rec_i][1];
-
 	var tmp_year = yy+addYear;
 	console.log(tmp_year, mm + addMonth);
 	if (mm+addMonth > 12)
 		tmp_year++;
 	if (mm+addMonth < 1)
 		tmp_year--;
-
     if (tmp_year >= yearBegin && tmp_year <= yearEnd)
 	{
 		yy = tmp_year;
@@ -231,7 +187,6 @@ function upd2(addYear,addMonth)
 	}
 	else
 		console.log('data out of bound!');
-
 	var key = $("#selectSrc").val().substring(0,6) + $("#selectSrc").val().substring(6);
 	// update drop-down date
 	$('#yearSelect').val(yy);
@@ -240,11 +195,9 @@ function upd2(addYear,addMonth)
 	console.log('new year: ',yy);
 	console.log('new month: ',mm);
 	console.log('new day: ',dd);
-
     loadData(yy,mm,dd,key);
 }
 */
-
 function upd3(change)
 {
 	show_rec_i += change;
@@ -282,29 +235,23 @@ function upd3(change)
 		}
 		dateDiv_content += '</select>'
 		$('#dateDiv').html(dateDiv_content);
-
 	}
 	show_rec_i = Math.min(Math.max(0, show_rec_i), dateList.length-1);
 	// change "select" option
 	$('#mmdd').val(show_rec_i);
 	upd();
-	
 }
-
 var this_year;
 var storedData;
 var lagRange = 5;
-
 function ImportData()
 {
-
 	console.log('Importing data...');
 	console.log(yearBegin,'-',yearEnd);
 	// years
-	var folder = 'light_d30_i5_2003_2012/'
+	var folder = 'data/light_d30_i5_2003_2012/'
 	for (var i = yearBegin; i <= yearEnd; i++)
 	{
-
 		var filePath = folder + i + '.txt';
 		d3.text(filePath, function(text){
 			tmp_data = d3.csv.parseRows(text);
@@ -321,7 +268,6 @@ function ImportData()
 					var mm = date[1];
 					var dd = date[2];
 					var mmdd = mm + '-' + dd;
-
 					try
 					{
 						allFromTo[yy][mmdd][srcID][dstID] = [];
@@ -360,8 +306,6 @@ function ImportData()
 						allFromTo[yy][mmdd][srcID][dstID] = [];
 						allToFrom[yy][mmdd][dstID][srcID] = [];
 					}*/
-
-
 					for (var j = 1; j <= lagRange; j++)
 					{
 						p = rec[2+j];
@@ -382,10 +326,8 @@ function ImportData()
 				data.forEach( function(v) {
 					var srcID = v[0].substring(0,6) + v.src.substring(7,12);
 					var dstID = v.dst.substring(0,6) + v.dst.substring(7,12);
-
 					allFromTo[v.yy][v.mm][srcID][dstID] = [];
 					allToFrom[v.yy][v.mm][dstID][srcID] = [];
-
 					for (var i = 1; i <= lagRange; i++)
 					{
 						var px = 'p'+i;
@@ -395,7 +337,6 @@ function ImportData()
 					}
 					//if (v.yy==2003)
 					//      console.log(v.p5);
-
 					//console.log(v.yy,'-',v.mm,', srcID:',srcID,', dstID:',dstID,', p:',p);
 				});
 			}
@@ -408,10 +349,8 @@ function ImportData()
 		});
 		*/
 	}
-
 	//upd();
 }
-
 function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 {
 	theLags = theLags.split('');
@@ -432,14 +371,12 @@ function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 		lineWidth = 1;
 	*/
 	lineWidth = 1;
-	
 	//console.log(objmp[srck]["name"] + "(" + srck + ") -> " + objmp[dstk]["name"] + '(' + dstk + ')');
 	//var mapdist = (objmp[srck]["pos"][0]-objmp[dstk]["pos"][0])*(objmp[srck]["pos"][0]-objmp[dstk]["pos"][0])+(objmp[srck]["pos"][1]-objmp[dstk]["pos"][1])*(objmp[srck]["pos"][1]-objmp[dstk]["pos"][1]);
 	var mapdist = Math.pow((s0-d0),2) + Math.pow((s1-d1),2);
 	var color;
 	if (fromto)     color = "red";
 	else            color = "green";
-
 	var line = svg.append("line")
 				  .style("stroke", color)
 				  .attr("x1", s0)
@@ -468,7 +405,6 @@ function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 	}
 	//infoX = middleX;
 	//infoY = middleY;
-	
 	var rectX = infoX-rectWidth/2;
 	var rectY = infoY-rectHeight/2;
 	var rect = svg.append("rect")
@@ -479,7 +415,6 @@ function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 					.attr('stroke','black')
 					.attr('stroke-width','3')
 					.attr('fill','white');
-	
 	var lagtext = svg.append('text')
 					 .attr('x', infoX - 7*theLags.length)
 					 .attr('y', infoY + 5)
@@ -487,7 +422,6 @@ function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 					 .attr('font-size', 20)
 					 .text(theLags.join());
 	//lagtext.append("svg:tspan").style("fill", "red").text("hello");
-
 	// draw strength bar
 	// take the lag variables coefficient
 	// e.g. 5 lags, 5 coefficients
@@ -531,26 +465,19 @@ function draw(fromto, srcID, dstID, stationP, theLags, yy, mm, dd)
 						 .attr('y1', bar_y1)
 						 .attr('y2', bar_y2)
 						 .attr("stroke-width", 3);
-
 		}
-
-
 	}
 }
-
 function loadData(yy,mm,dd,tg)
 {
-
 	console.log("Load some data...");
 	// remove old svg elements
 	$("svg line").remove();
 	$("svg text").remove();
 	$("svg rect").remove();
-
 	var str = tg;
 	//alert(str);
 	$("#selectSrc").val(str);
-
 	// year out of range
 	if (yy < yearBegin || yy > yearEnd)
 	{
@@ -559,7 +486,6 @@ function loadData(yy,mm,dd,tg)
 	}
 	var limDistCount = 0;
 	var degOut = 0, degIn = 0;
-
 	// draw
 	// all edges from the station
 	mmdd = mm + '-' + dd;
@@ -568,12 +494,10 @@ function loadData(yy,mm,dd,tg)
 		var srcID = tg;
 		var dstID = stationID;
 		var fromto = true;
-
 		// take the min stationP
 		var hasValidP = false;
 		var minP = 1;
 		var lags = '';
-
 		var stationP;
 		for (var i = 1; i <= lagRange; i++)
 		{
@@ -598,7 +522,6 @@ function loadData(yy,mm,dd,tg)
 		var dstID = tg;
 		var stationP;
 		var fromto = false;
-
 		// take the min stationP
 		var hasValidP = false;
 		var minP = 1;
@@ -621,9 +544,7 @@ function loadData(yy,mm,dd,tg)
 	}
 	console.log('degIn:', degIn);
 	console.log('degOut:', degOut);
-
 }
-
 $(document).ready(function(){
 	// date option change event
 	/*$('#mmdd').change(function(){
@@ -631,8 +552,6 @@ $(document).ready(function(){
 		show_rec_i = i;
 		upd();
 	});*/
-
-	$('.menu-link').bigSlide();
 	//$('select').select2({dropdownAutoWidth: 'true'});
 	/*
 	$(".monthPicker").datepicker({
@@ -640,14 +559,12 @@ $(document).ready(function(){
 		changeMonth: true,
 		changeYear: true,
 		showButtonPanel: true,
-
 		onClose: function(dateText, inst) {
 			var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
 			var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
 			$(this).val($.datepicker.formatDate('yy/mm', new Date(year, month, 1)));
 		}
 	});
-
 	$(".monthPicker").focus(function () {
 		$(".ui-datepicker-calendar").hide();
 		$("#ui-datepicker-div").position({
@@ -656,7 +573,6 @@ $(document).ready(function(){
 			of: $(this)
 		});
 	});*/
-
 	// year, month options div
 	$('#yearDiv').html(function(){
 		var str;
@@ -689,13 +605,11 @@ $(document).ready(function(){
 		str += "</select>";
 		return str;
 	});*/
-
 	ImportData();
 	$('#yearSelect').val(yearBegin);
 	//$('#monthSelect').val(1);
 	//$('#daySelect').val(1);
 	//loadData(2004,1,1,"593160-99999");
-
 	// checked?
 	$( ":checkbox" ).change(function(){
 		var checkedLag = $(this).val();
