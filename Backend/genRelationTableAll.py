@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import statsmodels.api as sm
 import csv
-
+import calendar
 def getAllFilesRecursive(root):
     files = [ join(root,f) for f in listdir(root) if isfile(join(root,f))]
     dirs = [ d for d in listdir(root) if isdir(join(root,d))]
@@ -21,8 +21,8 @@ startYear = 2003
 numOfYear = 10
 MAXLAG = 5
 Threshold = 0.05
-pair_directory = "../QueryAndImportantData/pairData_p12345"
-output_directory = r'../QueryAndImportantData/output_pairData_p12345'
+pair_directory = "../QueryAndImportantData/pairData_p1"
+output_directory = r'../QueryAndImportantData/output_pairData_p1'
 d = output_directory
 if not os.path.exists(d):
     os.makedirs(d)
@@ -79,6 +79,14 @@ for dirname, dirnames, filenames in os.walk(pair_directory):
                 yy,mm,dd = ymd.split("-")
                 thisKey  = mm+"-"+dd
                 #print thisKey
+                # fix
+                oneDay = dt.timedelta(days = 1)
+                thisDay = dt.date(int(yy),int(mm),int(dd))
+                #
+                if calendar.isleap(int(yy)) and int(mm)>=3:
+                    thisDay = thisDay + oneDay
+                    thisKey = '%02d'% thisDay.month + '-' + '%02d' % thisDay.day
+                    #print 'leap fix key:'+ thisKey
                 if p1<= Threshold:
                     outputDict[yy][thisKey] = "V"
                 else:
