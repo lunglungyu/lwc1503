@@ -2,3 +2,6 @@ Backend/ChinaAll
 **/*.un~
 **/*.pyc
 **/*.swp
+Frontend/bower_components
+Frontend/node_modules
+Frontend/data
