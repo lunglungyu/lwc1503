@@ -46,7 +46,7 @@ with open("../QueryAndImportantData/pair.csv", "r") as ins:
         yy,mm,dd = ymd.split("-")
         thisKey  = mm+"-"+dd
         #print thisKey
-        if p1<= thisKey:
+        if p1<= Threshold:
             outputDict[yy][thisKey] = "V"
         else:
             outputDict[yy][thisKey] = " "
