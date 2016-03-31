@@ -7,6 +7,8 @@
         <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
         <meta http-equiv="pragma" content="no-cache" />
         <link href="bower_components/select2/dist/css/select2.min.css" rel="stylesheet" />
+        <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="lib/d3.slider/d3.slider.css" media="screen" />
         <style>
 /*
 #.bubble circle{
@@ -19,6 +21,7 @@
     <body>
         <div id="container" style="float:left; position: relative; width: 1300px; height: 1000px;"></div>
         <div id="sideBar" style="float:right;">
+            <p>
             Days causality  onsistent for: <br/>
             <select id="selectDataPeriod">
                 <option value="disabled" disabled selected>Please Select An Option</option>
@@ -28,57 +31,63 @@
                 <option value="1234">4</option>
                 <option value="12345">5</option>
             </select>
+            </p>
+            <p>
+            Threshold for station pair:<br/>
+            <!--
+                <select id="selectPairThreshold">
+                <option value="disabled" disabled selected>Please Select An Option</option>
+                <option value="0">0</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="150">150</option>
+                <option value="200">200</option>
+                <option value="250">250</option>
+                <option value="300">300</option>
+                <option value="350">350</option>
+                <option value="400">400</option>
+                <option value="450">450</option>
+                <option value="500">500</option>
+                <option value="550">550</option>
+                <option value="600">600</option>
+                </select>
+            -->
+            <div id="slider"></div>
+            </p>
         </div>
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/jquery-ui/ui/core.js"></script>
+        <script src="bower_components/jquery-ui/ui/widget.js"></script>
+        <script src="bower_components/jquery-ui/ui/mouse.js"></script>
+        <script src="bower_components/jquery-ui/ui/slider.js"></script>
         <script src="bower_components/d3/d3.min.js"></script>
         <script src="bower_components/topojson/topojson.js"></script>
         <script src="bower_components/datamaps/dist/datamaps.all.min.js"></script>
         <script src="bower_components/select2/dist/js/select2.full.min.js"></script>
+        <script src="lib/d3.slider/d3.slider.js"></script>
         <script>
-$(document).ready(function(){
-    $('select').select2({
-        placeholder: 'Select an option',
-        dropdownAutoWidth: 'true'
-    });
-    $('#selectDataPeriod').change(function(e){
-        var srcFile = 'data/significantPair/Causality_Pair_p' + this.value + '.csv';
-        console.log(srcFile);
-    });
-});
-        </script>
-        <script>
-var stationPairThresholdDisplay = 100;
-var projection, path;
-var map = new Datamap({
-    element: document.getElementById('container'),
-    geographyConfig: {
-        dataUrl: 'data/china_topojson.json'
-    },
-    scope: 'china',
-    setProjection: function(element, options) {
-        projection = d3.geo.mercator().scale(1050).translate([-1300,1200]);
-        path = d3.geo.path().projection( projection );
-        //console.log(projection);
-        //console.log(path);
-        return {path: path, projection: projection};
-    },
-    fills: {
-        defaultFill: "#AAAAAA",
-        stationL: "#CC0000", //red
-        stationM: "#CCCC00",//yello
-        stationH: "#00CC00" //green
-    }
-});
+var map;
+var slider;
+var stationPairThresholdDisplay = 200;
 var chinaStation = [50136099999,50434099999,50564099999,50888099999,51431099999,51463099999,51709099999,51811099999,51828099999,51886099999,52203099999,52418099999,52436099999,52495099999,52602099999,52737099999,52787099999,52818099999,52836099999,53083099999,53336099999,53352099999,53391099999,53564099999,53646099999,53705099999,53787099999,53923099999,53959099999,54012099999,54026099999,54259099999,54273099999,54292099999,54337099999,54377099999,54511099999,54808099999,54823099999,54843099999,54863099999,55228099999,55279099999,55578099999,55696099999,56004099999,56065099999,56106099999,56167099999,56247099999,56444099999,56492099999,56748099999,56954099999,56985099999,57328099999,57476099999,57598099999,57745099999,57816099999,58221099999,58345099999,58367099999,58633099999,58754099999,58968099999,59007099999,59117099999,59134099999,59278099999,59316099999,59358099999,59431099999,59456099999,59493099999,59845099999];
 var bubbleArray = [];
 var objmp={};
+var projection, path;
+function updateThresholdDisplayBySlider(){
+    //console.log('diu');
+    stationPairThresholdDisplay = slider.value();
+    $('#selectDataPeriod').trigger('change');
+    $('#selectDataPeriod').change();
+}
 function updateStationBubbles(NeedReloadFromObjmp){
     //if need modify ,for example, color of station bubble,modification are done to the objmp; then this call reload bubbleArray from objmp
     map.bubbles([]); // clear bubbles
     if(NeedReloadFromObjmp == true){
         bubbleArray=[];
-        for(var k in objmp)bubbleArray.push(objmp[k]);
-        //console.log(bubbleArray);
+        for(var k in objmp){
+            if(objmp[k]["display"] == true)bubbleArray.push(objmp[k]);
+        }
+        console.log(bubbleArray);
     }
     map.bubbles(bubbleArray,{
         popupTemplate: function(geo, data) {
@@ -88,26 +97,91 @@ function updateStationBubbles(NeedReloadFromObjmp){
         }
     });
 }
-d3.csv("data/stationData.csv", function (datas){
-    datas = datas.filter(function (station) {
-        if (chinaStation.indexOf(parseInt(station.id)) > -1)
-        {
-            var location = [+station.long, +station.lat];
-            objmp[station.id] = {};
-            objmp[station.id]["name"] = station.name;
-            objmp[station.id]["radius"] = 10;
-            objmp[station.id]["org"] = location;
-            objmp[station.id]["pos"] = projection(location);
-            objmp[station.id]["latitude"]= objmp[station.id]["org"][1];
-            objmp[station.id]["longitude"]= objmp[station.id]["org"][0];
-            objmp[station.id]["fillKey"]= 'stationM';
-            return true;
+function updateStationArcs(){
+    // stationBubbles already filtered  ()
+}
+$(document).ready(function(){
+    $('select').select2({
+        placeholder: 'Select an option',
+        dropdownAutoWidth: 'true'
+    });
+    $('#selectDataPeriod').change(function(e){
+        var srcFile = 'data/significantPair/Causality_Pair_p' + this.value + '.csv';
+        console.log(srcFile);
+        //assume all station not significant to display unless it involved in some frequent fair
+        for(var k in objmp)objmp[k]["display"]=false;
+        d3.text(srcFile, function(text) {
+            var data = d3.csv.parseRows(text, function(d) {
+                //console.log(d);
+                return d.map(Number);
+            });
+            console.log(data);
+            var pairNum = data.length;
+            for(var i=0;i<pairNum;++i){
+                var countForPair = data[i][0];
+                if(countForPair < stationPairThresholdDisplay)break;
+                var station1 = data[i][1]+ "99999";
+                var station2 = data[i][2]+ "99999";
+                //console.log(station1 +","+station2);
+                objmp[station1]["display"]=true;
+                objmp[station2]["display"]=true;
+            }
+            updateStationBubbles(true);
+        });        
+    });
+
+    $('#selectPairThreshold').change(function(e){
+        stationPairThresholdDisplay = this.value;
+        console.log(stationPairThresholdDisplay);
+        $('#selectDataPeriod').trigger('change');
+        $('#selectDataPeriod').change();
+    });
+
+    // Initialize slider
+    slider = d3.slider().min(0).max(750).ticks(10).showRange(true).value(stationPairThresholdDisplay).callback(updateThresholdDisplayBySlider);
+    // Render the slider in the div
+    d3.select('#slider').call(slider);
+    map = new Datamap({
+        element: document.getElementById('container'),
+        geographyConfig: {
+            dataUrl: 'data/china_topojson.json'
+        },
+        scope: 'china',
+        setProjection: function(element, options) {
+            projection = d3.geo.mercator().scale(1050).translate([-1300,1200]);
+            path = d3.geo.path().projection( projection );
+            //console.log(projection);
+            //console.log(path);
+            return {path: path, projection: projection};
+        },
+        fills: {
+            defaultFill: "#AAAAAA",
+            stationL: "#CC0000", //red
+            stationM: "#CCCC00",//yello
+            stationH: "#00CC00" //green
         }
     });
-    //console.log(objmp);
-    updateStationBubbles(true);
+    d3.csv("data/stationData.csv", function (datas){
+        datas = datas.filter(function (station) {
+            if (chinaStation.indexOf(parseInt(station.id)) > -1)
+            {
+                var location = [+station.long, +station.lat];
+                objmp[station.id] = {};
+                objmp[station.id]["name"] = station.name;
+                objmp[station.id]["radius"] = 10;
+                objmp[station.id]["org"] = location;
+                objmp[station.id]["pos"] = projection(location);
+                objmp[station.id]["latitude"]= objmp[station.id]["org"][1];
+                objmp[station.id]["longitude"]= objmp[station.id]["org"][0];
+                objmp[station.id]["fillKey"]= 'stationM';
+                return true;
+            }
+        });
+        //console.log(objmp);
+        updateStationBubbles(true);
+        $("#selectDataPeriod").val('1').change();
+    });
 });
-
         </script>
     </body>
 </html>
