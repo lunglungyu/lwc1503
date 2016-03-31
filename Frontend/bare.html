@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    </head>
+    <body>
+        <!--<div id="container" style="position: relative; width: 1440px; height: 900px;"></div>-->
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/d3/d3.min.js"></script>
+        <script src="bower_components/topojson/topojson.js"></script>
+        <script src="bower_components/datamaps/dist/datamaps.all.min.js"></script>
+<style>
+#svgRegion path{
+    fill: #ccc;
+    stroke: #fff;
+}
+</style>
+<script type="text/javascript">
+  var element =  document.getElementById('container');
+  var height = 1000, width = 1920;
+  var projection = d3.geo.mercator().scale(1050).translate([-1300,1200]);
+  //var projection = d3.geo.mercator().scale(400).translate([-element.offsetWidth / 2, element.offsetHeight / 2]);
+  var svg = d3.select("body").append("svg").attr("width",width).attr("height", height);;
+  var path = d3.geo.path().projection(projection);
+  var svgRegion = svg.append("g").attr("id","svgRegion");
+  d3.json("data/china_topojson.json", function(error, topology) {
+	  svgRegion.selectAll("path")
+		.data(topojson.feature(topology, topology.objects.china).features)
+	  .enter().append("path").attr("d", path)
+  });
+</script>
+        <script>
+/*
+    var map = new Datamap({
+        element: document.getElementById('container'),
+        scope: 'usa'
+    });
+var map = new Datamap({
+    element: document.getElementById('container'),
+    geographyConfig: {
+        dataUrl: 'data/china.json'
+    },
+    scope: 'custom',
+    setProjection: function(element, options) {
+        var projection, path;
+        projection = d3.geo.albersUsa()
+            .scale(element.offsetWidth)
+            .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+        path = d3.geo.path().projection( projection );
+        return {path: path, projection: projection};
+    }
+});
+*/
+        </script>
+    </body>
+</html>
