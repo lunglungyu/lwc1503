@@ -54,6 +54,7 @@
             -->
             <div id="slider"></div>
             </p>
+            <button onclick="finalizeStationArcs();">Update Arc</button>
         </div>
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
         <script src="bower_components/jquery-ui/ui/core.js"></script>
@@ -68,9 +69,10 @@
         <script>
 var map;
 var slider;
-var stationPairThresholdDisplay = 200;
+var stationPairThresholdDisplay = 300;
 var chinaStation = [50136099999,50434099999,50564099999,50888099999,51431099999,51463099999,51709099999,51811099999,51828099999,51886099999,52203099999,52418099999,52436099999,52495099999,52602099999,52737099999,52787099999,52818099999,52836099999,53083099999,53336099999,53352099999,53391099999,53564099999,53646099999,53705099999,53787099999,53923099999,53959099999,54012099999,54026099999,54259099999,54273099999,54292099999,54337099999,54377099999,54511099999,54808099999,54823099999,54843099999,54863099999,55228099999,55279099999,55578099999,55696099999,56004099999,56065099999,56106099999,56167099999,56247099999,56444099999,56492099999,56748099999,56954099999,56985099999,57328099999,57476099999,57598099999,57745099999,57816099999,58221099999,58345099999,58367099999,58633099999,58754099999,58968099999,59007099999,59117099999,59134099999,59278099999,59316099999,59358099999,59431099999,59456099999,59493099999,59845099999];
 var bubbleArray = [];
+var arcArray = [];
 var objmp={};
 var projection, path;
 function updateThresholdDisplayBySlider(){
@@ -97,8 +99,42 @@ function updateStationBubbles(NeedReloadFromObjmp){
         }
     });
 }
-function updateStationArcs(){
-    // stationBubbles already filtered  ()
+function insertStationArcs(count,station1raw,station2raw){
+    var formatter = d3.format("04d");
+    var fileName = "output_"+formatter(count)+"_"+station1raw+"_"+station2raw+".csv";
+    var filePath = "data/output_pairData_p" + $("#selectDataPeriod").val()  +"_general/";
+    var fullPath  = filePath + fileName;
+    console.log(fullPath);
+    d3.csv(fullPath, function (datas){
+        var thisObj = {};
+        thisObj.fillKey = datas[0].Class; // 01-01 judge class for 10 year general
+        thisObj.origin = {};
+        var station1 = station1raw+"99999";
+        var station2 = station2raw+"99999";
+        thisObj.origin.latitude = objmp[station1]["latitude"];
+        thisObj.origin.longitude = objmp[station1]["longitude"];
+        thisObj.destination = {};
+        thisObj.destination.latitude = objmp[station2]["latitude"];
+        thisObj.destination.longitude = objmp[station2]["longitude"];
+        if(thisObj.fillKey == "L")thisObj.strokeColor= "green";
+        else if(thisObj.fillKey == "M")thisObj.strokeColor= "yellow";
+        else if(thisObj.fillKey == "H")thisObj.strokeColor= "red";
+        console.log(thisObj);
+        arcArray.push(thisObj);
+    });
+}
+function finalizeStationArcs(){
+    map.arc([],{strokeWidth:2, animationSpeed:50});
+    console.log(arcArray);
+    map.arc(arcArray,{
+        strokeWidth:2,
+        animationSpeed:1500,
+        fills: {
+             L: 'green',
+             M: 'yellow',
+             H: 'red'
+        }   
+    });
 }
 $(document).ready(function(){
     $('select').select2({
@@ -106,6 +142,7 @@ $(document).ready(function(){
         dropdownAutoWidth: 'true'
     });
     $('#selectDataPeriod').change(function(e){
+        arcArray = [];
         var srcFile = 'data/significantPair/Causality_Pair_p' + this.value + '.csv';
         console.log(srcFile);
         //assume all station not significant to display unless it involved in some frequent fair
@@ -120,13 +157,16 @@ $(document).ready(function(){
             for(var i=0;i<pairNum;++i){
                 var countForPair = data[i][0];
                 if(countForPair < stationPairThresholdDisplay)break;
+                // this pair is frequent
                 var station1 = data[i][1]+ "99999";
                 var station2 = data[i][2]+ "99999";
                 //console.log(station1 +","+station2);
                 objmp[station1]["display"]=true;
                 objmp[station2]["display"]=true;
+                insertStationArcs(countForPair,data[i][1],data[i][2]);
             }
             updateStationBubbles(true);
+            finalizeStationArcs();
         });        
     });
 
@@ -138,13 +178,13 @@ $(document).ready(function(){
     });
 
     // Initialize slider
-    slider = d3.slider().min(0).max(750).ticks(10).showRange(true).value(stationPairThresholdDisplay).callback(updateThresholdDisplayBySlider);
+    slider = d3.slider().min(100).max(750).ticks(7).showRange(true).value(stationPairThresholdDisplay).callback(updateThresholdDisplayBySlider);
     // Render the slider in the div
     d3.select('#slider').call(slider);
     map = new Datamap({
         element: document.getElementById('container'),
         geographyConfig: {
-            dataUrl: 'data/china_topojson.json'
+            dataUrl: 'china_topojson.json'
         },
         scope: 'china',
         setProjection: function(element, options) {
@@ -161,7 +201,7 @@ $(document).ready(function(){
             stationH: "#00CC00" //green
         }
     });
-    d3.csv("data/stationData.csv", function (datas){
+    d3.csv("stationData.csv", function (datas){
         datas = datas.filter(function (station) {
             if (chinaStation.indexOf(parseInt(station.id)) > -1)
             {
@@ -179,7 +219,7 @@ $(document).ready(function(){
         });
         //console.log(objmp);
         updateStationBubbles(true);
-        $("#selectDataPeriod").val('1').change();
+        $("#selectDataPeriod").val('12345').change();
     });
 });
         </script>
