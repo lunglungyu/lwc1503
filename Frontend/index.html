@@ -21,6 +21,7 @@
     <body>
         <div id="container" style="float:left; position: relative; width: 1300px; height: 1000px;"></div>
         <div id="sideBar" style="float:right;">
+            <h3>Function Menu</h3>
             <p>
             Days causality  onsistent for: <br/>
             <select id="selectDataPeriod">
@@ -54,6 +55,12 @@
             -->
             <div id="slider"></div>
             </p>
+            <p>
+            StartDate of TS to analyse:<br/>
+            <select id="selectStartDate">
+                <option value="disabled" disabled selected>Please Select An Option</option>
+            </select>
+            </p>
             <button onclick="finalizeStationArcs();">Update Arc</button>
         </div>
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -75,6 +82,7 @@ var bubbleArray = [];
 var arcArray = [];
 var objmp={};
 var projection, path;
+var startDateIndex = 0; // first  row in general summary file for station pair => 0101 = row 0
 function updateThresholdDisplayBySlider(){
     //console.log('diu');
     stationPairThresholdDisplay = slider.value();
@@ -89,7 +97,7 @@ function updateStationBubbles(NeedReloadFromObjmp){
         for(var k in objmp){
             if(objmp[k]["display"] == true)bubbleArray.push(objmp[k]);
         }
-        console.log(bubbleArray);
+        //console.log(bubbleArray);
     }
     map.bubbles(bubbleArray,{
         popupTemplate: function(geo, data) {
@@ -104,10 +112,10 @@ function insertStationArcs(count,station1raw,station2raw){
     var fileName = "output_"+formatter(count)+"_"+station1raw+"_"+station2raw+".csv";
     var filePath = "data/output_pairData_p" + $("#selectDataPeriod").val()  +"_general/";
     var fullPath  = filePath + fileName;
-    console.log(fullPath);
+    //console.log(fullPath);
     d3.csv(fullPath, function (datas){
         var thisObj = {};
-        thisObj.fillKey = datas[0].Class; // 01-01 judge class for 10 year general
+        thisObj.fillKey = datas[startDateIndex].Class; // 01-01 judge class for 10 year general
         thisObj.origin = {};
         var station1 = station1raw+"99999";
         var station2 = station2raw+"99999";
@@ -119,16 +127,17 @@ function insertStationArcs(count,station1raw,station2raw){
         if(thisObj.fillKey == "L")thisObj.strokeColor= "green";
         else if(thisObj.fillKey == "M")thisObj.strokeColor= "yellow";
         else if(thisObj.fillKey == "H")thisObj.strokeColor= "red";
-        console.log(thisObj);
+        //console.log(thisObj);
         arcArray.push(thisObj);
     });
 }
 function finalizeStationArcs(){
     map.arc([],{strokeWidth:2, animationSpeed:50});
-    console.log(arcArray);
+    //console.log(arcArray);
     map.arc(arcArray,{
         strokeWidth:2,
         animationSpeed:1500,
+        arcSharpness:2,
         fills: {
              L: 'green',
              M: 'yellow',
@@ -137,14 +146,10 @@ function finalizeStationArcs(){
     });
 }
 $(document).ready(function(){
-    $('select').select2({
-        placeholder: 'Select an option',
-        dropdownAutoWidth: 'true'
-    });
     $('#selectDataPeriod').change(function(e){
         arcArray = [];
         var srcFile = 'data/significantPair/Causality_Pair_p' + this.value + '.csv';
-        console.log(srcFile);
+        //console.log(srcFile);
         //assume all station not significant to display unless it involved in some frequent fair
         for(var k in objmp)objmp[k]["display"]=false;
         d3.text(srcFile, function(text) {
@@ -152,7 +157,7 @@ $(document).ready(function(){
                 //console.log(d);
                 return d.map(Number);
             });
-            console.log(data);
+            //console.log(data);
             var pairNum = data.length;
             for(var i=0;i<pairNum;++i){
                 var countForPair = data[i][0];
@@ -172,7 +177,7 @@ $(document).ready(function(){
 
     $('#selectPairThreshold').change(function(e){
         stationPairThresholdDisplay = this.value;
-        console.log(stationPairThresholdDisplay);
+        //console.log(stationPairThresholdDisplay);
         $('#selectDataPeriod').trigger('change');
         $('#selectDataPeriod').change();
     });
@@ -220,6 +225,21 @@ $(document).ready(function(){
         //console.log(objmp);
         updateStationBubbles(true);
         $("#selectDataPeriod").val('12345').change();
+    });
+    d3.csv("startDate.csv", function (datas){
+        console.log(datas);
+        var len = datas.length;
+        for(var i = 0 ;i< len ;++i){
+            $("#selectStartDate").append($("<option></option>").attr("value",i).text(datas[i].startDate));
+        }
+    });
+    $('#selectStartDate').change(function(e){
+        startDateIndex = parseInt(this.value);
+        updateThresholdDisplayBySlider();
+    });
+    $('select').select2({
+        placeholder: 'Select an option',
+        dropdownAutoWidth: 'true'
     });
 });
         </script>
