@@ -44,6 +44,8 @@
             </select>
             </p>
             <button onclick="finalizeStationArcs();">Update Arc</button>
+            <br/>
+            <button onclick="animateArc();">Animate Arc</button>
         </div>
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
         <script src="bower_components/jquery-ui/ui/core.js"></script>
@@ -56,6 +58,7 @@
         <script src="bower_components/select2/dist/js/select2.full.min.js"></script>
         <script src="lib/d3.slider/d3.slider.js"></script>
         <script>
+var numStartDate;
 var map;
 var slider;
 var stationPairThresholdDisplay = 300;
@@ -68,6 +71,9 @@ var startDateIndex = 0; // first  row in general summary file for station pair =
 var srcTestRaw="";
 function updateThresholdDisplayBySlider(){
     //console.log('diu');
+    // clear all arc
+    arcArray=[]; 
+    finalizeStationArcs();
     stationPairThresholdDisplay = slider.value();
     //$('#selectDataPeriod').trigger('change');
     updateObjmpFromNewThreshold();
@@ -86,7 +92,10 @@ function updateStationBubbles(NeedReloadFromObjmp){
     map.bubbles(bubbleArray,{
         popupTemplate: function(geo, data) {
             return '<div class="hoverinfo">'
-                + "Name:"+data.name + '</br>'
+                + "Name:"+data.name + '<br/>'
+                + "ID:"+data.id + '<br/>'
+                + "latitude:"+data.latitude + '<br/>'
+                + "longitude:"+data.longitude + '<br/>'
                 + '</div>';
         }
     });
@@ -120,39 +129,58 @@ function finalizeStationArcs(){
     //console.log(arcArray);
     map.arc(arcArray,{
         strokeWidth:2,
-        animationSpeed:1500,
+        animationSpeed:1000,
         arcSharpness:2,
         fills: {
-             L: 'green',
-             M: 'yellow',
-             H: 'red'
+            L: 'green',
+            M: 'yellow',
+            H: 'red'
         }   
     });
 }
-function updateObjmpFromNewThreshold(){
-            for(var k in objmp)objmp[k]["display"]=false;
-            arcArray = [];
-            var data = d3.csv.parseRows(srcTestRaw, function(d) {
-                return d.map(Number);
-            });
-            //console.log(data);
-            var pairNum = data.length;
-            for(var i=0;i<pairNum;++i){
-                var countForPair = data[i][0];
-                if(countForPair < stationPairThresholdDisplay)break; // Threshold .....
-                // this pair is frequent
-                var station1 = data[i][1]+ "99999";
-                var station2 = data[i][2]+ "99999";
-                //console.log(station1 +","+station2);
-                objmp[station1]["display"]=true;
-                objmp[station2]["display"]=true;
-                insertStationArcs(countForPair,data[i][1],data[i][2]);
+function animateArc(){
+    for(var i=0;i<numStartDate;++i){
+        setTimeout(function () {
+            var id = i;
+            return function(){
+                console.log(id);
+                startDateIndex = id+'';
+                $("#selectStartDate").val(id+'').change();
+                updateThresholdDisplayBySlider();
+                setTimeout(function () {
+                finalizeStationArcs();
+                },1500);
             }
-            // some station not involved in any significant pairs;
-            updateStationBubbles(true);
+        }(), (i+1)*4000);        
+    }
+}
+function updateObjmpFromNewThreshold(){
+    for(var k in objmp)objmp[k]["display"]=false;
+    arcArray = [];
+    var data = d3.csv.parseRows(srcTestRaw, function(d) {
+        return d.map(Number);
+    });
+    //console.log(data);
+    var pairNum = data.length;
+    for(var i=0;i<pairNum;++i){
+        var countForPair = data[i][0];
+        if(countForPair < stationPairThresholdDisplay)break; // Threshold .....
+        // this pair is frequent
+        var station1 = data[i][1]+ "99999";
+        var station2 = data[i][2]+ "99999";
+        //console.log(station1 +","+station2);
+        objmp[station1]["display"]=true;
+        objmp[station2]["display"]=true;
+        insertStationArcs(countForPair,data[i][1],data[i][2]);
+    }
+    // some station not involved in any significant pairs;
+    updateStationBubbles(true);
 }
 $(document).ready(function(){
     $('#selectDataPeriod').change(function(e){
+        // clear all arc
+        arcArray=[]; 
+        finalizeStationArcs();
         var srcFile = 'data/significantPair/Causality_Pair_p' + this.value + '.csv';
         //assume all station not significant to display unless it involved in some frequent fair
         d3.text(srcFile, function(text) {
@@ -193,6 +221,7 @@ $(document).ready(function(){
                 var location = [+station.long, +station.lat];
                 objmp[station.id] = {};
                 objmp[station.id]["name"] = station.name;
+                objmp[station.id]["id"] = station.id;
                 objmp[station.id]["radius"] = 10;
                 objmp[station.id]["org"] = location;
                 objmp[station.id]["pos"] = projection(location);
@@ -208,21 +237,24 @@ $(document).ready(function(){
     });
     d3.csv("startDate.csv", function (datas){
         console.log(datas);
-        var len = datas.length;
-        for(var i = 0 ;i< len ;++i){
-            $("#selectStartDate").append($("<option></option>").attr("value",i).text(datas[i].startDate));
-        }
-        $("#selectStartDate").val('0').change(); // which is 01-01
-    });
-    $('#selectStartDate').change(function(e){
-        startDateIndex = parseInt(this.value);
-        updateThresholdDisplayBySlider();
-    });
-    $('select').select2({
-        placeholder: 'Select an option',
-        dropdownAutoWidth: 'true'
-    });
-});
+        numStartDate = datas.length;
+        for(var i = 0 ;i< numStartDate ;++i){
+                         $("#selectStartDate").append($("<option></option>").attr("value",i).text(datas[i].startDate));
+                         }
+                         $("#selectStartDate").val(startDateIndex+'').change(); // which is 01-01
+                         });
+                         $('#selectStartDate').change(function(e){
+                         // clear all arc
+                         arcArray=[]; 
+                         finalizeStationArcs();
+                         startDateIndex = parseInt(this.value);
+                         updateThresholdDisplayBySlider();
+                         });
+                         $('select').select2({
+                         placeholder: 'Select an option',
+                         dropdownAutoWidth: 'true'
+                         });
+                         });
         </script>
     </body>
 </html>
