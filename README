@@ -1,5 +1,0 @@
-=DEPLOY
-To install dependency(May not need):
-sudo apt-get install python-dev build-essential python-setuptools
-
-install Anaconda
