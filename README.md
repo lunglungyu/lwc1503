@@ -1,4 +1,6 @@
 To Do List:
+==============================
+
 - Dual direction GCs
   - try autocorrelation between those Timeseries
   
@@ -11,14 +13,3 @@ To Do List:
   
 - Sometimes only have long range GCs, no GC with closer stations
 
-
-
-
-
-
-
-=DEPLOY
-To install dependency(May not need):
-sudo apt-get install python-dev build-essential python-setuptools
-
-install Anaconda
