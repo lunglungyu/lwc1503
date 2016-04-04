@@ -11,7 +11,7 @@ lastYear = 2012
 # read year files
 gcFromTo = {}
 gcToFrom = {}
-rawGCs = []
+stationDict = {}
 
 # 76 datas
 with open('fypCutStation') as f:
@@ -26,11 +26,8 @@ for yy in range( startYear, lastYear+1 ):
 	for s in dataList:
 		gcFromTo[yy][s] = {}
 		gcToFrom[yy][s] = {}
-	'''
-	for y in range( startYear, lastYear+1 ):
-		gcFromTo[s][y] = {}
-		for m in range( 1, 13 ):
-			gc[s][y][m] = {}'''
+for s in dataList:
+	stationDict[s] = {}
 
 for yy in range( startYear, lastYear+1 ):
 	readPath = os.path.join( inFolder, str(yy)+'.txt' )
@@ -41,19 +38,22 @@ for yy in range( startYear, lastYear+1 ):
 			s1 = tmp[0]
 			s2 = tmp[1]
 			mmdd = tmp[2][5:]
-
+			p = tmp[3:8]
 			try:
-				gcFromTo[yy][s1][s2][mmdd] = tmp[3:8]
+				gcFromTo[yy][s1][s2][mmdd] = p
 			except:
 				gcFromTo[yy][s1][s2] = {}
-				gcFromTo[yy][s1][s2][mmdd] = tmp[3:8]
+				gcFromTo[yy][s1][s2][mmdd] = p
 
 
 			try:
-				gcFromTo[yy][s2][s1][mmdd] = tmp[3:8]
+				gcFromTo[yy][s2][s1][mmdd] = p
 			except:
 				gcFromTo[yy][s2][s1] = {}
-				gcFromTo[yy][s2][s1][mmdd] = tmp[3:8]
+				gcFromTo[yy][s2][s1][mmdd] = p
+
+			s2_date = ','.join(tmp[1:3])
+			stationDict[s1][s2_date] = p
 
 
 

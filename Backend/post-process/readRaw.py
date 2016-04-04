@@ -64,4 +64,28 @@ with open(readFileName) as fin:
 		d = line[3]
 		if line[4] != 'None':
 			line[4] = float(line[4])
-		data[s][y][m][d] = line[4]
+		else:
+			line[4] = None
+		data[s][y][m][d]['temp'] = line[4]
+
+
+for s in data:
+	for yy in data[s]:
+		firstDay = dt.date(yy,1,1)
+		if isLeap(yy):
+			yearDays = 366
+		else:
+			yearDays = 365
+		TS = []
+		for di in range(yearDays):
+			tmp_date = firstDay + di*oneDay
+			mm = tmp_date.month
+			dd = tmp_date.day
+			TS.append(data[s][yy][mm][dd]['temp'])
+		TS = diff(TS, 2)
+		TS.append(None)
+		TS.append(None)
+		for mm in data[s][yy]:
+			for dd in data[s][yy][mm]:
+				dayIndex = (dt.date(yy,mm,dd) - firstDay).days
+				data[s][yy][mm][dd]['diff2'] = TS[dayIndex]
