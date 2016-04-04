@@ -1,12 +1,19 @@
 # calculate autocorrelation of TS that has bidirection GC with other stations
+# * check "tau" for shift >= 2
+# * 
+#   ---------------- Result  ----------------
 # time consumed: 0:02:50.727000
-#
-# Result:
 # histogram 1: "tau"s of TSs with bidirection GC
-# histogram 2: "tau"s of TSs without bi-GC 
-# No significant difference between them :(
+# histogram 2: "tau"s of TSs without bi-GC
+# temperature TS without diff2):
 # mean 1: 0.40143
 # mean 2: 0.41016
+# 
+# temperature TS with diff2):
+# mean for bi-GC TSs autocorr at "tau": 0.354657668643
+# mean for all-GC TSs autocorr at "tau": 0.345854893035
+#
+# No significant difference between them :(
 
 import os
 import datetime as dt
@@ -32,14 +39,17 @@ def getTempTS(s1, yy, mm, dd, length=30):
 		TS.append(data[s1][yy][mi][di]['temp'])
 	return TS
 
-def getTempDiffTS(s1, yy, mm, dd, length=30):
+def getTempDiffTS(s1, yy, mm, dd, length=28):
 	TS = []
+	yy = int(yy)
+	mm = int(mm)
+	dd = int(dd)
 	oneDay = dt.timedelta(days = 1)
 	for i in range(length):
 		tmpDate = dt.date(yy,mm,dd) + i*oneDay
 		mi = tmpDate.month
 		di = tmpDate.day
-		TS.append(data[s1][yy][mi][di]['diff'])
+		TS.append(data[s1][yy][mi][di]['diff2'])
 	return TS
 '''
 bidirection_list = {}
@@ -78,13 +88,12 @@ for rec in recs:
 		yy = date.split('-')[0]
 		mm = date.split('-')[1]
 		dd = date.split('-')[2]
-		ts1 = getTempTS(s1, yy, mm, dd)
+		ts1 = getTempDiffTS(s1, yy, mm, dd)
 		yo1 = abs(autocorr(ts1))
-	ts2 = getTempTS(s2, yy, mm, dd)
+	ts2 = getTempDiffTS(s2, yy, mm, dd)
 	yo2 = abs(autocorr(ts2))
 	autocorr_list.append(max(yo1[2:]))
 	autocorr_list.append(max(yo2[2:]))
-	#plt.plot(yo)
 
 # try all normal GCs TS autocorr
 all_autocorr_list = []
@@ -106,9 +115,9 @@ for s1 in stationDict:
 			yy = date.split('-')[0]
 			mm = date.split('-')[1]
 			dd = date.split('-')[2]
-			ts1 = getTempTS(s1, yy, mm, dd)
+			ts1 = getTempDiffTS(s1, yy, mm, dd)
 			yo1 = abs(autocorr(ts1))
-		ts2 = getTempTS(s2, yy, mm, dd)
+		ts2 = getTempDiffTS(s2, yy, mm, dd)
 		yo2 = abs(autocorr(ts2))
 		all_autocorr_list.append(max(yo1[2:]))
 		all_autocorr_list.append(max(yo2[2:]))
@@ -116,6 +125,9 @@ for s1 in stationDict:
 
 end_time = dt.datetime.now()
 print 'time consumed:', end_time - start_time
+print 'mean for bi-GC TSs autocorr at "tau":', np.mean(autocorr_list)
+print 'mean for all-GC TSs autocorr at "tau":', np.mean(all_autocorr_list)
+# run in console to see histogram
 
-plt.hist(autocorr_list, 1000);
-plt.hist(all_autocorr_list, 1000);
+#plt.hist(autocorr_list, 1000);
+#plt.hist(all_autocorr_list, 1000);

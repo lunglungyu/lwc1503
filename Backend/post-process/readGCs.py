@@ -9,24 +9,25 @@ lastYear = 2012
 
 #print 'Read folder:', inFolder
 # read year files
-gcFromTo = {}
+gcFromTo = {}		# gcFromTo[yy][s1][mmdd][s2] = p
 gcToFrom = {}
-stationDict = {}
+stationDict = {}	# stationDict[s1][s2,yy-mm-dd] = p
+stationList = []
 
 # 76 datas
 with open('fypCutStation') as f:
 	for line in f:
 		line = line.rstrip()
-		dataList.append(line)
+		stationList.append(line)
 
 # initialize dict
 for yy in range( startYear, lastYear+1 ):
 	gcFromTo[yy] = {}
 	gcToFrom[yy] = {}
-	for s in dataList:
+	for s in stationList:
 		gcFromTo[yy][s] = {}
 		gcToFrom[yy][s] = {}
-for s in dataList:
+for s in stationList:
 	stationDict[s] = {}
 
 for yy in range( startYear, lastYear+1 ):
@@ -34,23 +35,23 @@ for yy in range( startYear, lastYear+1 ):
 	with open( readPath ) as fin:
 		for line in fin:
 			tmp = line.split(',')
-			rawGCs.append(tmp)
+			#rawGCs.append(tmp)
 			s1 = tmp[0]
 			s2 = tmp[1]
 			mmdd = tmp[2][5:]
 			p = tmp[3:8]
 			try:
-				gcFromTo[yy][s1][s2][mmdd] = p
+				gcFromTo[yy][s1][mmdd][s2] = p
 			except:
-				gcFromTo[yy][s1][s2] = {}
-				gcFromTo[yy][s1][s2][mmdd] = p
+				gcFromTo[yy][s1][mmdd] = {}
+				gcFromTo[yy][s1][mmdd][s2] = p
 
 
 			try:
-				gcFromTo[yy][s2][s1][mmdd] = p
+				gcToFrom[yy][s2][mmdd][s1] = p
 			except:
-				gcFromTo[yy][s2][s1] = {}
-				gcFromTo[yy][s2][s1][mmdd] = p
+				gcToFrom[yy][s2][mmdd] = {}
+				gcToFrom[yy][s2][mmdd][s1] = p
 
 			s2_date = ','.join(tmp[1:3])
 			stationDict[s1][s2_date] = p

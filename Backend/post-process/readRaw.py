@@ -4,7 +4,7 @@ import datetime as dt
 readFileName = '76raw.txt'
 yearStartImport = 2003		# first year
 yearsImport = 10
-dataList = []
+stationList = []
 data = {}
 
 def isLeap(yy):
@@ -29,11 +29,11 @@ def diff(A, k):
 with open('fypCutStation') as f:
 	for line in f:
 		line = line.rstrip()
-		dataList.append(line)
+		stationList.append(line)
 
 oneDay = dt.timedelta(days = 1)
 # initialize dict
-for s in dataList:
+for s in stationList:
 	data[s] = {}
 	for yi in range(yearsImport):		# 2003-2012
 		y = yearStartImport + yi
