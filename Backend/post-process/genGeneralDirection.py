@@ -85,7 +85,7 @@ print '------------------'
 
 n_arrows = 0
 with open('generalDirections.txt','w') as f:
-	f.write('station,angle,angle_1,angle_2,str,fromto,dist')
+	f.write('station,date,angle,angle_1,angle_2,str,fromto,dist')
 	for yy in range(yearStart, yearEnd+1):
 		#print yy
 		n_year_arrows = 0
