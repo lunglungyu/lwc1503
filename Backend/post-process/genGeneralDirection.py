@@ -127,7 +127,7 @@ with open('generalDirections.txt','w') as f:
 							for rec in tmp_gcData:
 								if rec['s2'] == s2:
 									rec['fromto'] = None
-
+				'''
 				# remove bidirectional from tmp_gcData first
 				i = 0
 				while i < len(tmp_gcData):
@@ -135,7 +135,7 @@ with open('generalDirections.txt','w') as f:
 						del tmp_gcData[i]
 					else:
 						i += 1
-
+				'''
 				# calculate angle, direct distance
 				for single_gc in tmp_gcData:
 					single_gc['p1_pos'] = pos76[single_gc['s1']]
