@@ -17,7 +17,7 @@ import math
 
 
 yearStart = 2003
-n_year = 1
+n_year = 10
 yearEnd = yearStart+n_year-1
 
 minArrowGC = 4
@@ -64,6 +64,13 @@ def isSmallAngle( a1, a2, threshold ):
 	else:
 		return True
 
+def compareDate(a,b):
+	a = a.split('-')
+	a = dt.date(2000,int(a[0]),int(a[1]))
+	b = b.split('-')
+	b = dt.date(2000,int(b[0]),int(b[1]))
+	return (a-b).days
+
 # 1. find 
 # 
 #all_gcData = {}
@@ -83,7 +90,8 @@ with open('generalDirections.txt','w') as f:
 		#print yy
 		n_year_arrows = 0
 		for s1 in gcFromTo[yy]:
-			for mmdd in gcFromTo[yy][s1]:
+			mmdds = sorted(gcFromTo[yy][s1].keys(), cmp=compareDate)
+			for mmdd in mmdds:
 				# for a given s1, mmdd,
 				# store all GC records first
 				#s1 = '548080-99999'
