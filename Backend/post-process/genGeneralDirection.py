@@ -122,6 +122,11 @@ with open('generalDirections.txt','w') as f:
 						if s2 not in gcFromTo[yy][s1][mmdd]:
 							single_gc['fromto'] = False
 							tmp_gcData.append( single_gc )
+						else:
+							# set the 'fromto' to None
+							for rec in tmp_gcData:
+								if rec['s2'] == s2:
+									rec['fromto'] = None
 
 				# remove bidirectional from tmp_gcData first
 				i = 0
@@ -149,8 +154,6 @@ with open('generalDirections.txt','w') as f:
 				outGCseq = [0 for i in range(n_gcData)]
 				inGCseq = [0 for i in range(n_gcData)]
 
-				outDirs = []
-				inDirs = []
 				#print n_gcData
 				# 1. mark sequence
 				for i in range(len(tmp_gcData)):
@@ -180,7 +183,9 @@ with open('generalDirections.txt','w') as f:
 							else:
 								inGCseq[ i%n_gcData ] = inGCseq[ (i-1)%n_gcData ] + 1
 							outGCseq[ i%n_gcData ] = 0
-				#print outGCseq
+				# debug
+				#if yy==2003 and mmdd=='1-26' and s1=='586330-99999':
+				#	print outGCseq
 				#print inGCseq
 				# find valid subsequence (1,2,3,...)
 				def findGeneralDirections( gcData, seq, minCount, fromto ):
