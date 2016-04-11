@@ -1,4 +1,6 @@
 # read general directions file
+import os
+import datatime as dt
 
 startYear = 2003
 lastYear = 2012
