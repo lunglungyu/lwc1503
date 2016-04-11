@@ -19,6 +19,22 @@
     </style> 
   </head>
   <body>
+    <svg id="holderSvg">
+      <defs>
+        <marker id="arrow" viewBox="0 -5 10 10" refX="5" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <path d="M0,-5L10,0L0,5" class="arrowHead"></path>
+        </marker>
+        <marker id="arrowRed" viewBox="0 -5 10 10" refX="5" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <path d="M0,-5L10,0L0,5" fill="#f00" class="arrowHead"></path>
+        </marker>
+        <marker id="arrowGreen" viewBox="0 -5 10 10" refX="5" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <path d="M0,-5L10,0L0,5" fill="#0f0" class="arrowHead"></path>
+        </marker>
+        <marker id="arrowYellow" viewBox="0 -5 10 10" refX="5" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+          <path d="M0,-5L10,0L0,5" fill="#ff0" class="arrowHead"></path>
+        </marker>
+      </defs>
+    </svg>
     <div id="container" style="float:left; position: relative; width: 1300px; height: 1000px;"></div>
     <div id="sideBar" style="float:right;">
       <h3>Function Menu</h3>
@@ -58,7 +74,7 @@
     <script src="bower_components/jquery-ui/ui/slider.js"></script>
     <script src="bower_components/d3/d3.min.js"></script>
     <script src="bower_components/topojson/topojson.js"></script>
-    <script src="bower_components/datamaps/dist/datamaps.all.min.js"></script>
+    <script src="bower_components/datamaps/src/js/datamaps_arrow.js"></script>
     <script src="bower_components/select2/dist/js/select2.full.min.js"></script>
     <script src="lib/d3.slider/d3.slider.js"></script>
     <script>
@@ -121,9 +137,21 @@
           thisObj.destination = {};
           thisObj.destination.latitude = objmp[station2]["latitude"];
           thisObj.destination.longitude = objmp[station2]["longitude"];
-          if(thisObj.fillKey == "L")thisObj.strokeColor= "green";
-          else if(thisObj.fillKey == "M")thisObj.strokeColor= "yellow";
-          else if(thisObj.fillKey == "H")thisObj.strokeColor= "red";
+          if(thisObj.fillKey == "L"){
+            thisObj.strokeColor= "green";
+            thisObj.markerStartElementID='arrowGreen';
+            thisObj.markerEndElementID='arrowGreen';
+          }
+          else if(thisObj.fillKey == "M"){
+            thisObj.strokeColor= "yellow";
+            thisObj.markerStartElementID='arrowYellow';
+            thisObj.markerEndElementID='arrowYellow';
+          }
+          else if(thisObj.fillKey == "H"){
+            thisObj.strokeColor= "red";
+            thisObj.markerStartElementID='arrowRed';
+            thisObj.markerEndElementID='arrowRed';
+          }
           //console.log(thisObj);
           arcArray.push(thisObj);
         });
@@ -133,8 +161,9 @@
         //console.log(arcArray);
         map.arc(arcArray,{
           strokeWidth:2,
-          animationSpeed:1000,
+          animationSpeed: 0,
           arcSharpness:2,
+          greatArc:true,
           fills: {
             L: 'green',
             M: 'yellow',
