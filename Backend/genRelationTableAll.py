@@ -21,8 +21,8 @@ startYear = 2003
 numOfYear = 10
 MAXLAG = 5
 Threshold = 0.05
-pair_directory = "../QueryAndImportantData/pairData_p1"
-output_directory = r'../QueryAndImportantData/output_pairData_p1'
+pair_directory = "../QueryAndImportantData/pairData_p12345"
+output_directory = r'../QueryAndImportantData/output_pairData_p12345'
 d = output_directory
 if not os.path.exists(d):
     os.makedirs(d)
@@ -30,7 +30,7 @@ if not os.path.exists(d):
 print 'Time Series Length:', TSLength
 print 'Interval:', interval
 oneDay = dt.timedelta(days = 1)
-keyMMDD = [] 
+keyMMDD = []
 firstDay = dt.date(startYear,1,1)
 periods = (yeardayMax - TSLength) / interval + 1	# no. of TS in the year
 for pp in range(periods):
@@ -72,9 +72,16 @@ for dirname, dirnames, filenames in os.walk(pair_directory):
         with open(readFileName, "r") as ins:
             array = []
             for line in ins:
+                line = line.rstrip('\n\r')
+                line = line.rstrip('\r')
+                line = line.rstrip('\n')
                 #print line
                 arr = line.split(",")
                 p1 = float(arr[4][1:-1])
+                p2 = float(arr[5][1:-1])
+                p3 = float(arr[6][1:-1])
+                p4 = float(arr[7][1:-1])
+                p5 = float(arr[8][1:-1])
                 ymd = arr[3][1:-1]
                 yy,mm,dd = ymd.split("-")
                 thisKey  = mm+"-"+dd
@@ -87,7 +94,7 @@ for dirname, dirnames, filenames in os.walk(pair_directory):
                     thisDay = thisDay + oneDay
                     thisKey = '%02d'% thisDay.month + '-' + '%02d' % thisDay.day
                     #print 'leap fix key:'+ thisKey
-                if p1<= Threshold:
+                if p5<= Threshold:
                     outputDict[yy][thisKey] = "V"
                 else:
                     outputDict[yy][thisKey] = " "
