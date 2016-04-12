@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import os
-folder_path ="../QueryAndImportantData/output_pairData_p123_general/"
-output_folder_path ="../stationVisualize/output_pairData_p123_general/"
+folder_path ="../QueryAndImportantData/output_pairData_p12345_general/"
+output_folder_path ="../stationVisualize/output_pairData_p12345_general/"
 #file_name = "../QueryAndImportantData/output_pairData_p1234_general/output_0315_533910_542590.csv"
 if not os.path.exists(output_folder_path):
     os.makedirs(output_folder_path)
