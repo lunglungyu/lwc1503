@@ -1,0 +1,54 @@
+data.table : fast IO 
+nortest : test for normality
+lmtest : grangertest
+forecast 
+msbvar : ((not available  for 3.2.1))
+MTS : multivariate time series
+
+astsa
+FitAR
+
+urca : cointegration test
+vars : granger / VAR 
+sandwich : covariance estimator
+
+lubridate : date utility 
+RMySQL : read/write db 
+
+
+docker run -d -p 80:80 -p 3306:3306 --name fypcontainer -e MYSQL_ROOT_PASSWORD=opensource -e MYSQL_DATABASE=lwc1503 -e MYSQL_USER=csci4140 -e MYSQL_PASSWORD=opensource -d lunglungyu/dev
+docker start fypcontainer
+docker exec -t fypcontainer /bin/bash 
+
+
+select * from `granger`,`granger_vars` where (`granger`.`station1`= `granger_vars`.`station1` and  `granger`.`station2`= `granger_vars`.`station2` and `granger`.`date`= `granger_vars`.`date`) and ((`granger`.`p0lag1cause2` > 0.1 and `granger_vars`.`p0lag1cause2` < 0.1)  or (`granger`.`p0lag1cause2` < 0.1 and `granger_vars`.`p0lag1cause2` > 0.1))
+select * from `granger`,`granger_vars` where (`granger`.`station1`= `granger_vars`.`station1` and  `granger`.`station2`= `granger_vars`.`station2` and `granger`.`date`= `granger_vars`.`date`) and ((`granger`.`p1lag1cause2` > 0.1 and `granger_vars`.`p1lag1cause2` < 0.1)  or (`granger`.`p1lag1cause2` < 0.1 and `granger_vars`.`p1lag1cause2` > 0.1))
+select * from `granger`,`granger_vars` where (`granger`.`station1`= `granger_vars`.`station1` and  `granger`.`station2`= `granger_vars`.`station2` and `granger`.`date`= `granger_vars`.`date`) and ((`granger`.`p2lag1cause2` > 0.1 and `granger_vars`.`p2lag1cause2` < 0.1)  or (`granger`.`p2lag1cause2` < 0.1 and `granger_vars`.`p2lag1cause2` > 0.1))
+
+
+select * from `granger`,`granger_vars` where (`granger`.`station1`= `granger_vars`.`station1` and  `granger`.`station2`= `granger_vars`.`station2` and `granger`.`date`= `granger_vars`.`date`) and ((`granger`.`p2lag1cause2` < 0.1 and `granger_vars`.`p2lag1cause2` < 0.1))
+
+
+select * from `granger`,`granger_vars` where (`granger`.`station1`= `granger_vars`.`station1` and  `granger`.`station2`= `granger_vars`.`station2` and `granger`.`date`= `granger_vars`.`date`) and ((`granger`.`p2lag1cause2` < 0.1 and `granger_vars`.`p2lag1cause2` < 0.1) and
+(`granger`.`p1lag1cause2` < 0.1 and `granger_vars`.`p1lag1cause2` < 0.1))
+
+
+select * from `granger_vars_cov`,`granger_vars` where (`granger_vars_cov`.`station1`= `granger_vars`.`station1` and  `granger_vars_cov`.`station2`= `granger_vars`.`station2` and `granger_vars_cov`.`date`= `granger_vars`.`date`) and ((`granger_vars_cov`.`p2lag1cause2` < 0.1 and `granger_vars`.`p2lag1cause2` < 0.1))
+
+
+select `granger_vars_cov`.`station1`,`granger_vars_cov`.`station2`,`granger_vars_cov`.`date`,`granger_vars_cov`.`p2lag1cause2`,`granger_vars`.`p2lag1cause2` from `granger_vars_cov`,`granger_vars` where (`granger_vars_cov`.`station1`= `granger_vars`.`station1` and  `granger_vars_cov`.`station2`= `granger_vars`.`station2` and `granger_vars_cov`.`date`= `granger_vars`.`date`) and ((`granger_vars_cov`.`p2lag1cause2` < 0.05 and `granger_vars`.`p2lag1cause2` > 0.05))
+
+
+
+-----
+SQL for selecting frequent pairs
+
+SELECT count(*) as `ct`,`station1`,`station2` FROM `pythonResult` where `p1`<0.05 group by `station1`,`station2` order by `ct` desc
+SELECT count(*) as `ct`,`station1`,`station2` FROM `pythonResult` where `p1`<0.05 and `p2`<0.05 and `p3`<0.05 group by `station1`,`station2` order by `ct` desc
+
+ 
+1:  side: 15  , center: 2
+12: side: 17  , center: 3 
+123: side: 17 , center: 3
+1234:
+12345:
