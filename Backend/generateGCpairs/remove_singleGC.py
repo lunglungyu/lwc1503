@@ -8,12 +8,12 @@
 import os
 import datetime as dt
 
-inFolder = 'light_d30_i5_2003_2012'
-outFolder = 'continuous_' + inFolder
+inFolder = os.path.join('..','Data','light_d30_i1_2003')
+outFolder = os.path.join('..','Data','continuous_'+'light_d30_i1_2003')
 
 startYear = 2003
-lastYear = 2012
-interval = 5
+lastYear = 2003
+interval = 1
 
 original_count = 0
 count = 0

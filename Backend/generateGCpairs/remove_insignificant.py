@@ -4,11 +4,11 @@
 
 import os
 
-inFolder = 'd30_i5_2003_2012'
-outFolder = 'light_' + inFolder
+inFolder = os.path.join('..','Data','d30_i1_2003')
+outFolder = os.path.join('..','Data','light_' +'d30_i1_2003')
 
 startYear = 2003
-lastYear = 2012
+lastYear = 2003
 
 original_count = 0
 count = 0

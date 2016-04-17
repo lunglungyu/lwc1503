@@ -1,6 +1,6 @@
 # read general directions file
 import os
-import datatime as dt
+import datetime as dt
 
 startYear = 2003
 lastYear = 2012
