@@ -140,16 +140,19 @@
           if(thisObj.fillKey == "L"){
             thisObj.strokeColor= "green";
             thisObj.markerStartElementID='arrowGreen';
+            thisObj.markerMidElementID='arrowGreen';
             thisObj.markerEndElementID='arrowGreen';
           }
           else if(thisObj.fillKey == "M"){
             thisObj.strokeColor= "yellow";
             thisObj.markerStartElementID='arrowYellow';
+            thisObj.markerMidElementID='arrowYellow';
             thisObj.markerEndElementID='arrowYellow';
           }
           else if(thisObj.fillKey == "H"){
             thisObj.strokeColor= "red";
             thisObj.markerStartElementID='arrowRed';
+            thisObj.markerMidElementID='arrowRed';
             thisObj.markerEndElementID='arrowRed';
           }
           //console.log(thisObj);
@@ -179,7 +182,7 @@
           $("#selectStartDate").val(target+'').change();
           setTimeout(function () {
             finalizeStationArcs();
-          },700);
+          },2000);
         }
       }
 
@@ -190,7 +193,7 @@
           $("#selectStartDate").val(target+'').change();
           setTimeout(function () {
             finalizeStationArcs();
-          },700);
+          },2000);
         }
       }
 
@@ -231,6 +234,7 @@
         }
         // some station not involved in any significant pairs;
         updateStationBubbles(true);
+        //$("g.arc").detach().appendTo('svg');
       }
       $(document).ready(function(){
         $('#selectDataPeriod').change(function(e){
